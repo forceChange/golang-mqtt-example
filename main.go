@@ -38,6 +38,18 @@ var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err
 	fmt.Printf("Connect lost: %v", err)
 }
 
+// 客户端证书鉴权
+//func NewTlsConfig() *tls.Config {
+//	certpool := x509.NewCertPool()
+//	ca, err := ioutil.ReadFile("ca.pem")
+//	if err != nil {
+//		log.Fatalln(err.Error())
+//	}
+//	certpool.AppendCertsFromPEM(ca)
+//	return &tls.Config{
+//		RootCAs: certpool,
+//	}
+
 func sub(client mqtt.Client) {
 	topic := "JSBZ"
 	token := client.Subscribe(topic, 1, nil)
@@ -93,6 +105,10 @@ func main() {
 	opts.SetDefaultPublishHandler(messagePubHandler)
 	opts.OnConnect = connectHandler
 	opts.OnConnectionLost = connectLostHandler
+	//设置证书
+	//tlsConfig := NewTlsConfig()
+	//opts.SetTLSConfig(tlsConfig)
+
 	client := mqtt.NewClient(opts)
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
 		panic(token.Error())
