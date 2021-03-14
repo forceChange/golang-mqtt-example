@@ -57,11 +57,11 @@ func sub(client mqtt.Client) {
 	fmt.Printf("Subscribed to topic %s", topic)
 }
 
-func publish(client mqtt.Client, text1 string) {
+func publish(client mqtt.Client, text string) {
 	num := 10
 	for i := 0; i < num; i++ {
-		fmt.Sprintf("Message %d", text1)
-		token := client.Publish("JSBZ", 0, false, text1)
+		fmt.Sprintf("Message %d", text)
+		token := client.Publish("JSBZ", 0, false, text)
 		token.Wait()
 		time.Sleep(time.Second)
 	}
