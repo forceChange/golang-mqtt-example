@@ -9,13 +9,11 @@ import (
 	"github.com/EDDYCJY/go-gin-example/pkg/util"
 	"github.com/EDDYCJY/go-gin-example/routers"
 	_ "github.com/eclipse/paho.mqtt.golang"
-	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/gin-gonic/gin"
 	_ "github.com/gorilla/websocket"
 	_ "golang.org/x/net/proxy"
 	"log"
 	"net/http"
-	"time"
 )
 
 func init() {
@@ -24,47 +22,6 @@ func init() {
 	logging.Setup()
 	gredis.Setup()
 	util.Setup()
-}
-
-var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
-	fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
-}
-
-var connectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
-	fmt.Println("Connected", client)
-}
-
-var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err error) {
-	fmt.Printf("Connect lost: %v", err)
-}
-
-// 客户端证书鉴权
-//func NewTlsConfig() *tls.Config {
-//	certpool := x509.NewCertPool()
-//	ca, err := ioutil.ReadFile("ca.pem")
-//	if err != nil {
-//		log.Fatalln(err.Error())
-//	}
-//	certpool.AppendCertsFromPEM(ca)
-//	return &tls.Config{
-//		RootCAs: certpool,
-//	}
-
-func sub(client mqtt.Client) {
-	topic := "JSBZ"
-	token := client.Subscribe(topic, 1, nil)
-	token.Wait()
-	fmt.Printf("Subscribed to topic %s", topic)
-}
-
-func publish(client mqtt.Client, text string) {
-	num := 10
-	for i := 0; i < num; i++ {
-		fmt.Sprintf("Message %d", text)
-		token := client.Publish("JSBZ", 0, false, text)
-		token.Wait()
-		time.Sleep(time.Second)
-	}
 }
 
 func main() {
@@ -85,38 +42,6 @@ func main() {
 	}
 
 	log.Printf("[info] start http server listening %s", endPoint)
-
-	//server.ListenAndServe()
-
-	//endless.DefaultReadTimeOut = readTimeout
-	//endless.DefaultWriteTimeOut = writeTimeout
-	//endless.DefaultMaxHeaderBytes = maxHeaderBytes
-	//server = endless.NewServer(endPoint, routersInit)
-	//server.BeforeBegin = func(add string) {
-	//	log.Printf("Actual pid is %d", syscall.Getpid())
-	// topic
-	var broker = "www.wodongde.top"
-	var port = 1883
-	opts := mqtt.NewClientOptions()
-	opts.AddBroker(fmt.Sprintf("tcp://%s:%d", broker, port))
-	opts.SetClientID("mqttx_85e22339")
-	opts.SetUsername("admin")
-	opts.SetPassword("123456")
-	opts.SetDefaultPublishHandler(messagePubHandler)
-	opts.OnConnect = connectHandler
-	opts.OnConnectionLost = connectLostHandler
-	//设置证书
-	//tlsConfig := NewTlsConfig()
-	//opts.SetTLSConfig(tlsConfig)
-
-	client := mqtt.NewClient(opts)
-	if token := client.Connect(); token.Wait() && token.Error() != nil {
-		panic(token.Error())
-	}
-
-	sub(client)
-
-	publish(client, "你奶奶的")
 
 	err := server.ListenAndServe()
 	if err != nil {
